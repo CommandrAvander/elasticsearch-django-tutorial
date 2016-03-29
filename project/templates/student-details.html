@@ -1,0 +1,57 @@
+{% extends "index.html" %}
+
+{% block container %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{student.first_name}}  {{student.last_name}}</h1>
+
+          <h2 class="sub-header">Student details</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <th>Age</th>
+                  <th>University name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ student.pk }}</td>
+                  <td>{{ student.first_name }}</td>
+                  <td>{{ student.last_name }}</td>
+                  <td>{{ student.age }}</td>
+                  <td>{{ student.university.name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Course name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for course in student.courses.all %}
+                <tr>
+                  <td>{{ course.pk }}</td>
+                  <td>{{ course.name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+    </div>
+   </div>
+</div>
+
+{% endblock container %}

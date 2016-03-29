@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block extra_js %}
+<script type="text/javascript">
+$(function() {
+  $("#search").autocomplete({
+    source: "{% url 'autocomplete-view' %}",
+    minLength: 1,
+    select: function(event, ui) {
+      window.location.href = "{% url 'student-detail' %}" + "?student_id=" + ui.item.id;
+    },
+    open: function(event, ui) {
+        $(".ui-autocomplete").css("z-index", 1000);
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock extra_js %}
+
+{% block extra_css %}
+<link href="{% static "dashboard.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block header %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{% url 'index-view' %}">Elasticsearch demo</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse" data-toggle="tooltip" title="AUTOCOMPLETE">
+      <form class="navbar-form navbar-right">
+        <input type="text" id="search" class="form-control" placeholder=" Autocomplete Search...">
+      </form>
+    </div>
+  </div>
+</nav>
+{% endblock header %}
+
+{% block container %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar" data-html=true data-toggle="tooltip" title="<h4>FACETS</h4>">
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href=""><h3>FACETS</h3><span class="sr-only">(current)</span></a></li>
+      </ul>
+      <ul class="nav nav-sidebar" id='univ-facets-list' class="collapse">
+        <li class="active"><a href="">University<span class="sr-only">(current)</span></a></li>
+        {% for university in aggregations.university__name %}
+            <li><a href="{% url 'index-view'%}?{{university.url_args}}">{{university.name}}: {{university.count}} ({% if university.is_active %}-{% else %}+{% endif %})</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href="">Course<span class="sr-only">(current)</span></a></li>
+        {% for course in aggregations.course_names %}
+            <li><a href="{% url 'index-view'%}?{{course.url_args}}">{{course.name}}: {{course.count}} ({% if course.is_active %}-{% else %}+{% endif %})</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href="">Year in school<span class="sr-only">(current)</span></a></li>
+        {% for year in aggregations.year_in_school %}
+            <li><a href="{% url 'index-view'%}?{{year.url_args}}">{{year.name}}: {{year.count}}({% if year.is_active %}-{% else %}+{% endif %})</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+          <h2 class="sub-header">Filtered students list</h2>
+          <div class="table-responsive" data-toggle="tooltip" data-html=true title="<h4>Student list from elasticsearch</h4>">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <th>Age</th>
+                  <th>University name</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for hit in hits %}
+                <tr>
+                  <td><a href="{% url 'student-detail' %}?student_id={{ hit.pk }}">{{ hit.pk }}</a></td>
+                  <td>{{ hit.first_name }}</td>
+                  <td>{{ hit.last_name }}</td>
+                  <td>{{ hit.age }}</td>
+                  <td>{{ hit.university.name }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <h2 class="sub-header">Aggregation of students by age</h2>
+          <div class="table-responsive" data-toggle="tooltip" data-html=true title="<h4>AGGREGATION</h4>">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Count of students</th>
+                  <th>Age of students</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for age in aggregations.age %}
+                <tr>
+                  <td>{{ age.doc_count }}</td>
+                  <td>{{ age.key }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock container %}
