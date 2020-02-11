@@ -1,5 +1,5 @@
 decorator==4.0.9
-Django==1.9.3
+Django==1.11.28
 django-debug-toolbar==1.4
 django-extensions==1.6.1
 elasticsearch==2.3.0
